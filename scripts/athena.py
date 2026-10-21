@@ -28,7 +28,7 @@ def launch_experiments(args):
             'CVP': WorkloadType.CVP,
         }
         workload_types = [type_map[t.upper()] for t in args.workload_types if t.upper() in type_map]
-    
+
     try:
         generate_jobs(
             exe=args.exe,
@@ -105,25 +105,25 @@ Examples:
 
   # Summarize results (output to $ATHENA_HOME/experiments/results/Fig5c.csv)
   python athena.py -S Fig5c
-  
+
   # Summarize with custom input/output directories
   python athena.py -S Fig5d --input-dir /path/to/outputs --output /path/to/results.csv
 
   # Relaunch failed experiments
   python athena.py -R Fig5d
-  
+
   # Dry-run relaunch (show commands without executing)
   python athena.py -R Fig5d --dry-run
 
   # Visualize Fig7 results (reads $ATHENA_HOME/experiments/results/Fig7.csv,
   #                          outputs $ATHENA_HOME/experiments/results/Fig7.png)
   python athena.py -V Fig7
-  
+
   # Visualize with custom CSV input
   python athena.py -V Fig7 --csv /path/to/results.csv
         """
     )
-    
+
     # Main mode selection
     mode_group = parser.add_mutually_exclusive_group(required=True)
     mode_group.add_argument('-L', '--launch', dest='mode', action='store_const', const='launch',
@@ -134,12 +134,12 @@ Examples:
                            help='Relaunch failed experiments mode')
     mode_group.add_argument('-V', '--visualize', dest='mode', action='store_const', const='visualize',
                            help='Visualize results mode')
-    
+
     # Experiment selection (required for all modes)
-    parser.add_argument('cd', choices=['Fig7','Fig9','Fig10','Fig11','Fig12a','Fig12c','Fig12b','Fig13','Fig14','Fig19',
-                                       'Fig7-lite','Fig9-lite','Fig10-lite','Fig11-lite','Fig12a-lite','Fig12c-lite','Fig12b-lite','Fig13-lite','Fig14-lite','Fig19-lite'],
+    print(list(EXPERIMENTS.keys()))
+    parser.add_argument('cd', choices=list(EXPERIMENTS.keys()),
                        help='Experiment configuration to use')
-    
+
     # Launch/Relaunch arguments
     parser.add_argument('--exe', default='$ATHENA_HOME/bin/champsim',
                        help='Path to executable (default: $ATHENA_HOME/bin/champsim)')
@@ -153,26 +153,26 @@ Examples:
     parser.add_argument('--hostname', default=DEFAULT_HOSTNAME,
                        help=f'Hostname prefix (default: {DEFAULT_HOSTNAME})')
     parser.add_argument('--extra', help='Extra Slurm options')
-    
+
     # Relaunch-specific arguments
     parser.add_argument('--dry-run', dest='dry_run', action='store_true',
                        help='Print job commands without executing (valid in launch and relaunch mode only)')
-    
+
     # Visualization-specific arguments
-    parser.add_argument('--csv', 
+    parser.add_argument('--csv',
                        help='Path to CSV file for visualization (default: $ATHENA_HOME/experiments/results/<exp>.csv)')
-    
+
     # Summarize/Relaunch arguments
     parser.add_argument('--input-dir', dest='input_dir',
                        help='Directory containing .out files (default: $ATHENA_HOME/experiments/<exp>)')
     parser.add_argument('--ext', default='out', help='Extension of output files (default: out)')
-    
+
     # Shared output argument
-    parser.add_argument('--output', '-o', 
+    parser.add_argument('--output', '-o',
                        help='Output file path (default: $ATHENA_HOME/experiments/results/<exp>.csv or .png)')
-    
+
     args = parser.parse_args()
-    
+
     # Route to appropriate function
     if args.mode == 'launch':
         launch_experiments(args)

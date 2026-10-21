@@ -15,7 +15,7 @@
 /*********************
  * Simulation params *
  *********************/
-#define NUM_CPUS 1
+#define NUM_CPUS 2
 #define CPU_FREQ 4000
 
 /*********************
