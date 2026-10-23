@@ -56,12 +56,49 @@ EXP_VARIABLES = {
 
 # Experiment configurations (merges experiments with their variable definitions)
 EXPERIMENTS = {
-    'mosaic_cd1_llc_contention': {
-        'description': 'Cycle reward hack with CD1',
+    'mosaic_idle': {
+        'description': 'Idle trace to measure baseline perf',
+        'traces': ['idle__libquantum'],
         'experiments': {
             'Baseline': ['BASE'],
-            'Naive-POPET-Pythia-': ['BASE', 'POPET', 'PYTHIA'],
-            'Athena-POPET-Pythia-': ['BASE', 'POPET', 'PYTHIA', 'CD1', 'ATHENA'],
+            'Naive-POPET-Pythia': ['BASE', 'POPET', 'PYTHIA'],
+            'Athena-POPET-Pythia': ['BASE', 'POPET', 'PYTHIA', 'CD1', 'ATHENA'],
+        }
+    },
+    'mosaic_cd1_charybdis_L1': {
+        'description': 'Reward hack with CD1',
+        'traces': ['mosaic_cd1_charybdis_L1__libquantum'],
+        'experiments': {
+            'Baseline': ['BASE'],
+            'Naive-POPET-Pythia': ['BASE', 'POPET', 'PYTHIA'],
+            'Athena-POPET-Pythia': ['BASE', 'POPET', 'PYTHIA', 'CD1', 'ATHENA'],
+        }
+    },
+    'mosaic_cd1_charybdis_L2': {
+        'description': 'Reward hack with CD1',
+        'traces': ['mosaic_cd1_charybdis_L2__libquantum'],
+        'experiments': {
+            'Baseline': ['BASE'],
+            'Naive-POPET-Pythia': ['BASE', 'POPET', 'PYTHIA'],
+            'Athena-POPET-Pythia': ['BASE', 'POPET', 'PYTHIA', 'CD1', 'ATHENA'],
+        }
+    },
+    'mosaic_cd1_charybdis_L345': {
+        'description': 'Reward hack with CD1',
+        'traces': ['mosaic_cd1_charybdis_L345__libquantum'],
+        'experiments': {
+            'Baseline': ['BASE'],
+            'Naive-POPET-Pythia': ['BASE', 'POPET', 'PYTHIA'],
+            'Athena-POPET-Pythia': ['BASE', 'POPET', 'PYTHIA', 'CD1', 'ATHENA'],
+        }
+    },
+    'mosaic_cd1_plegma': {
+        'description': 'Reward hack with CD1',
+        'traces': ['mosaic_cd1_plegma__libquantum'],
+        'experiments': {
+            'Baseline': ['BASE'],
+            'Naive-POPET-Pythia': ['BASE', 'POPET', 'PYTHIA'],
+            'Athena-POPET-Pythia': ['BASE', 'POPET', 'PYTHIA', 'CD1', 'ATHENA'],
         }
     },
 }
@@ -89,14 +126,49 @@ class WorkloadType:
 # Trace data configuration (from hpca_final_1.tlist)
 # Each entry contains: path, knobs, workload_type, adverse (prefetcher-adverse if True)
 TRACE_DATA = {
+    'idle__libquantum': {
+        'path': '$ATHENA_HOME/traces/462.libquantum-1343B.champsimtrace.xz $ATHENA_HOME/traces/idle.champsimtrace.xz',
+        'knobs': '',
+        'type': WorkloadType.SPEC,
+        'adverse': False,
+    },
     'mosaic_cd1_llc_contention__libquantum': {
         'path': '$ATHENA_HOME/traces/mosaic_cd1_llc_contention.champsimtrace.xz $ATHENA_HOME/traces/462.libquantum-1343B.champsimtrace.xz',
         'knobs': '',
         'type': WorkloadType.SPEC,
         'adverse': False,
     },
+    'mosaic_cd1_row_destroyer__libquantum': {
+        'path': '$ATHENA_HOME/traces/mosaic_cd1_row_destroyer.champsimtrace.xz $ATHENA_HOME/traces/462.libquantum-1343B.champsimtrace.xz',
+        'knobs': '',
+        'type': WorkloadType.SPEC,
+        'adverse': False,
+    },
+    'mosaic_cd1_charybdis_L1__libquantum': {
+        'path': '$ATHENA_HOME/traces/462.libquantum-1343B.champsimtrace.xz $ATHENA_HOME/traces/mosaic_cd1_charybdis_L1.champsimtrace.xz',
+        'knobs': '',
+        'type': WorkloadType.SPEC,
+        'adverse': False,
+    },
+   'mosaic_cd1_charybdis_L2__libquantum': {
+        'path': '$ATHENA_HOME/traces/462.libquantum-1343B.champsimtrace.xz $ATHENA_HOME/traces/mosaic_cd1_charybdis_L2.champsimtrace.xz',
+        'knobs': '',
+        'type': WorkloadType.SPEC,
+        'adverse': False,
+    },
+    'mosaic_cd1_charybdis_L345__libquantum': {
+        'path': '$ATHENA_HOME/traces/462.libquantum-1343B.champsimtrace.xz $ATHENA_HOME/traces/mosaic_cd1_charybdis_L345.champsimtrace.xz',
+        'knobs': '',
+        'type': WorkloadType.SPEC,
+        'adverse': False,
+    },
+    'mosaic_cd1_plegma__libquantum': {
+        'path': '$ATHENA_HOME/traces/462.libquantum-1343B.champsimtrace.xz $ATHENA_HOME/traces/mosaic_cd1_plegma.champsimtrace.xz',
+        'knobs': '',
+        'type': WorkloadType.SPEC,
+        'adverse': False,
+    },
 }
-
 
 def get_trace_info(name: str) -> dict:
     """Get trace information including path, knobs, type, and adverse."""
@@ -113,6 +185,22 @@ def get_traces_by_type(workload_type: str) -> List[str]:
 def get_all_trace_names() -> List[str]:
     """Get list of all trace names."""
     return list(TRACE_DATA.keys())
+
+
+def get_cd_traces(cd: str) -> List[str]:
+    """Get trace names a CD should run on.
+
+    Uses EXPERIMENTS[cd]['traces'] if present; otherwise all traces.
+    """
+    if cd not in EXPERIMENTS:
+        raise ValueError(f"Unknown experiment: {cd}. Must be one of: {list(EXPERIMENTS.keys())}")
+    names = EXPERIMENTS[cd].get('traces')
+    if names is None:
+        return get_all_trace_names()
+    for n in names:
+        if n not in TRACE_DATA:
+            raise ValueError(f"Unknown trace '{n}' in EXPERIMENTS['{cd}']['traces']")
+    return list(names)
 
 
 # Default metrics configuration for rollup

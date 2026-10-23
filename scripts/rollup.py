@@ -8,7 +8,7 @@ import os
 import statistics
 from typing import List, Dict, Optional, Tuple, Set
 from config import (TRACE_DATA, EXPERIMENTS, DEFAULT_METRICS, DEFAULT_RESULTS_DIR,
-                    get_all_trace_names, get_athena_home)
+                    get_all_trace_names, get_cd_traces, get_athena_home)
 
 
 def trim(s: str) -> str:
@@ -138,8 +138,8 @@ def rollup_stats(cd: str, input_dir: Optional[str] = None,
         os.makedirs(results_dir, exist_ok=True)
         output_csv = get_default_csv_path(cd)
 
-    # Get trace names from config
-    trace_names = get_all_trace_names()
+    # Get trace names from config (restricted to this CD's subset if any)
+    trace_names = get_cd_traces(cd)
 
     # Get experiment names for this experiment config
     exp_names = list(EXPERIMENTS[cd]['experiments'].keys())

@@ -9,7 +9,8 @@ import subprocess
 from typing import List, Tuple, Optional
 from config import (EXPERIMENTS, DEFAULT_NCORES, DEFAULT_PARTITION,
                     DEFAULT_HOSTNAME, DEFAULT_METRICS, TRACE_DATA,
-                    EXP_VARIABLES, get_athena_home, get_all_trace_names)
+                    EXP_VARIABLES, get_athena_home, get_all_trace_names,
+                    get_cd_traces)
 from rollup import parse_output_file
 
 
@@ -35,8 +36,8 @@ def get_failed_experiments(cd: str, input_dir: Optional[str] = None,
     if input_dir is None:
         input_dir = os.path.join(athena_home, "experiments", cd)
 
-    # Get trace names and experiment names
-    trace_names = get_all_trace_names()
+    # Get trace names and experiment names (restricted to this CD's subset if any)
+    trace_names = get_cd_traces(cd)
     exp_names = list(EXPERIMENTS[cd]['experiments'].keys())
 
     # Check each experiment

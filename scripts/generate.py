@@ -9,7 +9,7 @@ import subprocess
 from typing import List, Dict, Optional
 from config import (EXPERIMENTS, DEFAULT_NCORES, DEFAULT_PARTITION,
                     DEFAULT_HOSTNAME, get_athena_home, EXP_VARIABLES,
-                    TRACE_DATA, WorkloadType)
+                    TRACE_DATA, WorkloadType, get_cd_traces)
 
 
 def get_experiments_for_cd(cd: str) -> List[Dict[str, str]]:
@@ -37,25 +37,31 @@ def get_experiments_for_cd(cd: str) -> List[Dict[str, str]]:
     return experiments
 
 
-def get_traces(workload_types: Optional[List[str]] = None) -> List[Dict[str, str]]:
+def get_traces(workload_types: Optional[List[str]] = None,
+               names: Optional[List[str]] = None) -> List[Dict[str, str]]:
     """
     Get trace list from TRACE_DATA in config.py.
-    
+
     Args:
-        workload_types: Optional list of workload types to filter by 
+        workload_types: Optional list of workload types to filter by
                        (e.g., [WorkloadType.SPEC, WorkloadType.PARSEC])
                        If None, returns all traces.
-    
+        names: Optional list of trace names to restrict to (e.g. a CD's
+                       own trace subset). If None, no name filtering.
+
     Returns:
         List of trace dictionaries with NAME, TRACE, KNOBS, and TYPE keys.
     """
     trace_info = []
-    
+
     for name, data in TRACE_DATA.items():
+        # Filter by explicit name list if specified
+        if names is not None and name not in names:
+            continue
         # Filter by workload type if specified
         if workload_types is not None and data['type'] not in workload_types:
             continue
-        
+
         trace_info.append({
             'NAME': name,
             'TRACE': data['path'],
@@ -102,8 +108,9 @@ class JobGenerator:
         self.experiments = get_experiments_for_cd(cd)
         print(f"Loaded {len(self.experiments)} experiments for {cd}")
         
-        # Get traces from config
-        self.traces = get_traces(workload_types=workload_types)
+        # Get traces from config (restricted to this CD's subset if any)
+        self.traces = get_traces(workload_types=workload_types,
+                                 names=get_cd_traces(cd))
         print(f"Loaded {len(self.traces)} traces from config")
     
     def substitute_variables(self, text: str, exp_name: str, trace_name: str) -> str:
