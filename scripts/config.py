@@ -101,6 +101,15 @@ EXPERIMENTS = {
             'Athena-POPET-Pythia': ['BASE', 'POPET', 'PYTHIA', 'CD1', 'ATHENA'],
         }
     },
+    'mosaic_cd1_scylla': {
+            'description': 'Scylla',
+            'traces': ['mosaic_cd1_scylla__libquantum'],
+            'experiments': {
+                'Baseline': ['BASE'],
+                'Naive-POPET-Pythia': ['BASE', 'POPET', 'PYTHIA'],
+                'Athena-POPET-Pythia': ['BASE', 'POPET', 'PYTHIA', 'CD1', 'ATHENA'],
+            }
+        },
 }
 
 
@@ -164,6 +173,12 @@ TRACE_DATA = {
     },
     'mosaic_cd1_plegma__libquantum': {
         'path': '$ATHENA_HOME/traces/462.libquantum-1343B.champsimtrace.xz $ATHENA_HOME/traces/mosaic_cd1_plegma.champsimtrace.xz',
+        'knobs': '',
+        'type': WorkloadType.SPEC,
+        'adverse': False,
+    },
+    'mosaic_cd1_scylla__libquantum': {
+        'path': '$ATHENA_HOME/traces/462.libquantum-1343B.champsimtrace.xz $ATHENA_HOME/traces/mosaic_cd1_scylla.champsimtrace.xz',
         'knobs': '',
         'type': WorkloadType.SPEC,
         'adverse': False,
